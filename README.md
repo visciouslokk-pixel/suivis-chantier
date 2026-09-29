@@ -14,6 +14,14 @@ Ouvrir une action pour ajouter des notes, fixer une échéance, joindre des fich
 
 Les fichiers Zimbra peuvent être joints en .eml, .msg ou .txt ; on peut aussi copier le contenu du mail dans les notes. Les fichiers se téléchargent dans leur format original. Pas de connexion automatique à Zimbra et pas d’analyse automatique du BPU : la vérification reste humaine.
 
+## Post-it de bureau
+
+Cliquer sur « Post-it de bureau » dans le menu. Sur un navigateur compatible avec Document Picture-in-Picture, une petite fenêtre reste au-dessus des autres applications. Déplacer et redimensionner cette fenêtre avec sa barre de titre. Garder l’application principale ouverte, éventuellement réduite : fermer ou recharger celle-ci ferme le Post-it épinglé. L’ouverture nécessite un clic et ne se lance pas automatiquement au démarrage de Windows.
+
+Le Post-it regroupe les actions disponibles de tous les chantiers en cours, avec les attentes et les dates de relance. Cocher termine l’action et débloque la suite. Le véhicule reste visible indépendamment du devis. Un RDV sans date demande cette date avant validation. « Annuler la dernière coche » rouvre l’action, sauf si une étape dépendante a été terminée entre-temps.
+
+Les changements sont enregistrés dans le même stockage local et transmis entre les fenêtres. Si le navigateur ne permet pas la fenêtre épinglée, une fenêtre classique est proposée ; elle n’est pas toujours au premier plan. Les deux modes fonctionnent hors connexion une fois leurs fichiers mis en cache.
+
 ## Données et sauvegardes
 
 IndexedDB conserve les chantiers et pièces jointes sur l’appareil et dans le profil de navigateur utilisé. Aucune donnée de chantier n’est envoyée à GitHub. Pas de compte, serveur de données, ni synchronisation entre PC et téléphone. Toute personne utilisant le même profil du navigateur peut accéder aux données.
