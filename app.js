@@ -20,14 +20,16 @@ function render(){
  const tasks=open.flatMap(p=>actionable(p).map(t=>({p,t})));
  const waiting=tasks.filter(({t})=>t.status==='waiting');
  const due=waiting.filter(({t})=>t.date<=today());
+ const upcoming=waiting.filter(({t})=>t.date>today());
  const ready=tasks.filter(({t})=>t.status!=='waiting').sort((a,b)=>(a.t.date||'9999').localeCompare(b.t.date||'9999'));
  let body='';
  if(view==='today'){
   body=`<div class="page-head"><div><div class="eyebrow">${new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</div><h1>Une chose à la fois.</h1><p>Les prochaines actions de tes chantiers, au même endroit.</p></div><button class="primary" data-new>+ Nouveau chantier</button></div><div class="stats"><div><strong>${open.length}</strong><span>chantiers en cours</span></div><div><strong>${ready.length}</strong><span>actions disponibles</span></div><div><strong>${due.length}</strong><span>relances à faire</span></div></div>`;
+  if(due.length)body+=`<section><div class="section-head"><h2>À relancer aujourd’hui <span>${due.length}</span></h2></div>${due.sort((a,b)=>a.t.date.localeCompare(b.t.date)).map(({p,t})=>taskCard(p,t)).join('')}</section>`;
   if(!projects.length)body+=empty('Ton premier chantier commence ici.','Donne-lui un nom. Ton déroulé BDC est déjà prêt.');
   else {
-   body+=`<section><div class="section-head"><h2>Pour avancer aujourd’hui <span>${ready.length}</span></h2><span class="muted">${Math.min(3,ready.length)} actions mises en avant</span></div>${ready.length?ready.slice(0,3).map(({p,t})=>taskCard(p,t)).join(''):empty('Rien à faire dans l’immédiat.','Tes actions en attente restent suivies ci-dessous.',false)}${ready.length>3?`<details><summary>Voir les ${ready.length-3} autres actions disponibles</summary>${ready.slice(3).map(({p,t})=>taskCard(p,t)).join('')}</details>`:''}</section>`;
-   if(waiting.length)body+=`<section><div class="section-head"><h2>Ne pas perdre le fil <span>${waiting.length}</span></h2><span class="muted">Réponses et relances</span></div>${waiting.sort((a,b)=>a.t.date.localeCompare(b.t.date)).map(({p,t})=>taskCard(p,t)).join('')}</section>`;
+   body+=`<section><div class="section-head"><h2>Pour avancer aujourd’hui <span>${ready.length}</span></h2><span class="muted">${Math.min(3,ready.length)} actions mises en avant</span></div>${ready.length?ready.slice(0,3).map(({p,t})=>taskCard(p,t)).join(''):'<p class="muted">Aucune autre action disponible pour le moment.</p>'}${ready.length>3?`<details><summary>Voir les ${ready.length-3} autres actions disponibles</summary>${ready.slice(3).map(({p,t})=>taskCard(p,t)).join('')}</details>`:''}</section>`;
+   if(upcoming.length)body+=`<section><div class="section-head"><h2>Ne pas perdre le fil <span>${upcoming.length}</span></h2><span class="muted">Réponses et relances</span></div>${upcoming.sort((a,b)=>a.t.date.localeCompare(b.t.date)).map(({p,t})=>taskCard(p,t)).join('')}</section>`;
   }
  }else if(view==='projects'){
   const list=projects.filter(p=>(activeFilter==='all'||(activeFilter==='closed'?closed(p):!closed(p)))&&`${p.name} ${p.site} ${p.company}`.toLowerCase().includes(search.toLowerCase()));

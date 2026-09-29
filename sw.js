@@ -1,4 +1,4 @@
-const CACHE='suivis-chantier-shell-v2';
+const CACHE='suivis-chantier-shell-v3';
 const ROOT=new URL('./',self.location.href);
 const FILES=['./','index.html','style.css','app.js','model.js','store.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png'].map(p=>new URL(p,ROOT).href);
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES))));
