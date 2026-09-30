@@ -12,6 +12,10 @@ Créer un chantier depuis « À faire » ou « Mes chantiers ». Le déroulé du
 
 Ouvrir une action pour ajouter des notes, fixer une échéance, joindre des fichiers ou mettre l’action en attente avec un retour attendu et une date de relance. Les relances apparaissent quand l’application est ouverte : aucune notification système ou envoi automatique de mail.
 
+« + Une action » propose les étapes BDC, des rendez-vous supplémentaires, des recherches et une action personnalisée. Le nom reste modifiable, et une même action peut être ajoutée plusieurs fois. Choisir « Avant : … » pour l’insérer à la bonne position. Dans le déroulé, utiliser les flèches ↑ / ↓ pour déplacer toute action existante. Le déplacement change l’ordre d’affichage, sans changer les dépendances du modèle BDC ; les actions ajoutées sont indépendantes et disponibles immédiatement. Les rendez-vous ajoutés exigent une date avant validation, dans l’application comme dans le Post-it.
+
+Les étapes véhicule donnent accès à https://apv.grandlyon.fr/ et les étapes GIMA à https://gima.grandlyon.fr/gimaweb/. Ces raccourcis ouvrent un nouvel onglet et ne marquent pas l’action comme terminée. L’accès aux portails reste soumis à la connexion et aux droits du poste professionnel.
+
 Les fichiers Zimbra peuvent être joints en .eml, .msg ou .txt ; on peut aussi copier le contenu du mail dans les notes. Les fichiers se téléchargent dans leur format original. Pas de connexion automatique à Zimbra et pas d’analyse automatique du BPU : la vérification reste humaine.
 
 ## Post-it de bureau

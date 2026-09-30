@@ -1,4 +1,4 @@
-import {today} from './model.js';
+import {today,requiresAppointmentDate,actionLink} from './model.js';
 import {openStore,all,updateProject} from './store.js';
 import {postitGroups,finishPostitAction,undoPostitAction} from './postit-model.js';
 
@@ -50,7 +50,8 @@ export async function mountPostit(doc,{pinned=false,onOpen}={}) {
       const waiting=t.status==='waiting';const overdue=t.date&&t.date<=day;
       const caption=waiting?`${overdue?'À relancer':'En attente'}${t.date?' · '+displayDate(t.date):''}${t.waitingFor?' — '+t.waitingFor:''}`:t.date?`Échéance : ${displayDate(t.date)}`:'';
       const choosing=dateEntry?.pid===p.id&&dateEntry?.tid===t.id;
-      return `<li><label class="task"><input type="checkbox" data-pid="${escape(p.id)}" data-tid="${escape(t.id)}" aria-label="Terminer : ${escape(t.title)} — ${escape(p.name)}" ${pending?'disabled':''}><span><strong>${escape(t.title)}</strong>${caption?`<small class="${waiting&&overdue?'due':''}">${escape(caption)}</small>`:''}</span></label>${choosing?`<form id="date-form"><label for="postit-date">Date du rendez-vous</label><input id="postit-date" name="date" type="date" required value="${escape(dateEntry.date||'')}"><div><button type="submit">Valider le RDV</button><button type="button" id="cancel-date">Annuler</button></div></form>`:''}</li>`;
+      const link=actionLink(t);
+      return `<li><label class="task"><input type="checkbox" data-pid="${escape(p.id)}" data-tid="${escape(t.id)}" aria-label="Terminer : ${escape(t.title)} — ${escape(p.name)}" ${pending?'disabled':''}><span><strong>${escape(t.title)}</strong>${caption?`<small class="${waiting&&overdue?'due':''}">${escape(caption)}</small>`:''}</span></label>${link?`<a class="portal-link" href="${link.url}" target="_blank" rel="noopener noreferrer">${escape(link.label)} ↗</a>`:''}${choosing?`<form id="date-form"><label for="postit-date">Date du rendez-vous</label><input id="postit-date" name="date" type="date" required value="${escape(dateEntry.date||'')}"><div><button type="submit">Valider le RDV</button><button type="button" id="cancel-date">Annuler</button></div></form>`:''}</li>`;
     }).join('')}</ul></section>`).join('')||'<div class="empty"><span>✓</span><h2>Rien en cours.</h2><p>Les prochaines actions de tes chantiers apparaîtront ici.</p></div>';
     doc.scrollingElement.scrollTop=scroll;
   }
@@ -72,8 +73,8 @@ export async function mountPostit(doc,{pinned=false,onOpen}={}) {
     const input=event.target.closest('input[data-tid]');if(!input)return;
     input.checked=false;if(pending)return;
     const {pid,tid}=input.dataset;
-    if(['rdv','travaux-rdv'].includes(tid)){
-      const projects=await all(db,'projects');const task=projects.find(p=>p.id===pid)?.tasks.find(t=>t.id===tid);
+    const projects=await all(db,'projects');const task=projects.find(p=>p.id===pid)?.tasks.find(t=>t.id===tid);
+    if(task&&requiresAppointmentDate(task)){
       if(!task?.date){dateEntry={pid,tid,date:''};await refresh(true);doc.querySelector('#postit-date')?.focus();return;}
     }
     await finish(pid,tid);

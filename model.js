@@ -15,6 +15,49 @@ export const steps = [
   ['service', 'Faire le service fait', ['travaux']],
 ];
 export const uid = () => crypto.randomUUID();
+export const actionTemplates = [
+  ...steps.map(([kind,title])=>({kind,title})),
+  {kind:'appointment',title:'Prendre un rendez-vous supplémentaire'},
+  {kind:'research',title:'Rechercher le bon lot de marché'},
+  {kind:'technical',title:'Vérifier une contrainte technique'},
+];
+export function taskKind(task) {
+  if(task.kind)return task.kind;
+  if(steps.some(([id])=>id===task.id))return task.id;
+  const title=task.title.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const template=actionTemplates.find(t=>t.title===task.title);
+  if(template)return template.kind;
+  if(/reserv/.test(title)&&/voiture|vehicule/.test(title))return 'vehicule';
+  if(/\bgima\b/.test(title))return 'gima';
+  return 'custom';
+}
+export const requiresAppointmentDate=task=>['rdv','travaux-rdv','appointment'].includes(taskKind(task));
+export function actionLink(task) {
+  const kind=taskKind(task);
+  if(kind==='vehicule')return {url:'https://apv.grandlyon.fr/',label:'Ouvrir la réservation de véhicule'};
+  if(kind==='gima')return {url:'https://gima.grandlyon.fr/gimaweb/',label:'Ouvrir GIMA'};
+  return null;
+}
+export function addAction(project,{kind='custom',title,date='',beforeId=''}) {
+  if(!['custom',...actionTemplates.map(t=>t.kind)].includes(kind))throw new Error('Choisis un type d’action valide.');
+  if(!title?.trim())throw new Error('Précise l’action.');
+  const index=beforeId?project.tasks.findIndex(t=>t.id===beforeId):project.tasks.length;
+  if(index<0)throw new Error('L’étape choisie n’est plus disponible.');
+  const task={id:uid(),kind,title:title.trim(),date,deps:[],status:'todo',note:'',waitingFor:'',files:[]};
+  project.tasks.splice(index,0,task);
+  project.history.unshift({at:new Date().toISOString(),text:`Action ajoutée : ${task.title}`});
+  return task;
+}
+export function moveAction(project,id,direction) {
+  if(![-1,1].includes(direction))throw new Error('Déplacement invalide.');
+  const index=project.tasks.findIndex(t=>t.id===id);
+  if(index<0)throw new Error('Cette action n’est plus disponible.');
+  const target=index+direction;
+  if(target<0||target>=project.tasks.length)return false;
+  [project.tasks[index],project.tasks[target]]=[project.tasks[target],project.tasks[index]];
+  project.history.unshift({at:new Date().toISOString(),text:`Action déplacée : ${project.tasks[target].title}`});
+  return true;
+}
 export function today() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 export function createProject({name, site = '', company = '', occupied = false}) {
   return {id:uid(), name, site, company, occupied, created:new Date().toISOString(), tasks:steps.map(([id,title,deps])=>({id,title,deps,status:id==='occupants'&&!occupied?'skipped':'todo',date:'',waitingFor:'',note:'',files:[]})), history:[]};
@@ -26,7 +69,7 @@ export const closed = p => p.tasks.every(finished);
 export function complete(p,id) {
   const task=p.tasks.find(t=>t.id===id);
   if(!task || !available(p,task)) throw new Error('Cette action dépend encore d’une étape non terminée.');
-  if(['rdv','travaux-rdv'].includes(id)&&!task.date) throw new Error('Renseigne la date du rendez-vous avant de confirmer.');
+  if(requiresAppointmentDate(task)&&!task.date) throw new Error('Renseigne la date du rendez-vous avant de confirmer.');
   task.status='done'; task.waitingFor='';
   p.history.unshift({at:new Date().toISOString(),text:`Terminé : ${task.title}`});
   if(id==='rdv') p.tasks.find(t=>t.id==='vehicule').date=task.date;
@@ -52,6 +95,7 @@ export function validateBackup(data) {
     const taskIds=new Set(p.tasks.map(t=>t.id));
     if(taskIds.size!==p.tasks.length||![...taskIds].every(validId)||!steps.every(([id])=>taskIds.has(id))) throw new Error('Déroulé incomplet.');
     for(const t of p.tasks) {
+      if(t.kind!==undefined&&!['custom',...actionTemplates.map(x=>x.kind)].includes(t.kind))throw new Error('Type d’action invalide.');
       if(typeof t.id!=='string'||typeof t.title!=='string'||!['todo','waiting','done','skipped'].includes(t.status)||!Array.isArray(t.deps)||!t.deps.every(id=>taskIds.has(id))||!Array.isArray(t.files)||!t.files.every(id=>fileIds.has(id))||typeof t.note!=='string'||typeof t.waitingFor!=='string'||typeof t.date!=='string'||(t.date&&!/^\d{4}-\d{2}-\d{2}$/.test(t.date))) throw new Error('Action invalide.');
       const seen=new Set(); const visit=id=>{if(seen.has(id))throw new Error('Dépendances circulaires.');seen.add(id);p.tasks.find(x=>x.id===id).deps.forEach(visit);seen.delete(id);}; visit(t.id);
     }
