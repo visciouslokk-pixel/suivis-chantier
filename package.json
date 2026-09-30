@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "build:portable": "node desktop/build.js"
   },
   "devDependencies": {
+    "electron": "^44.5.1",
     "fake-indexeddb": "^6.2.5"
   }
 }

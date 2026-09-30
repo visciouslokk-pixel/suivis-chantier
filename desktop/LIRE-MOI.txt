@@ -1,0 +1,34 @@
+SUIVIS CHANTIER — VERSION WINDOWS PORTABLE 1.1.0
+
+1. Décompresse toute l’archive ZIP dans un dossier sur ton PC.
+2. Double-clique sur « Suivis chantier.exe ». Aucune installation, aucun Node.js à installer.
+3. Au premier lancement, choisis le dossier où conserver tes chantiers.
+4. Pour reprendre les chantiers de la PWA : ouvre « Sauvegarde & données »,
+   puis « Importer ma sauvegarde JSON », sélectionne ton ancien fichier et confirme.
+
+À chaque modification validée, les chantiers et pièces jointes sont enregistrés
+directement dans « suivis-chantier.json » du dossier choisi.
+« suivis-chantier.precedent.json » contient la version précédente en secours.
+Au lancement, l’application relit les fichiers et rouvre le dernier chantier consulté.
+Le dossier est mémorisé dans « suivis-chantier-dossier.json », à côté de l’exécutable.
+Garde toute la version portable ensemble : l’exécutable a besoin des autres fichiers.
+Ne lance pas l’exécutable directement depuis l’archive ZIP.
+
+Le Post-it reste au premier plan et utilise le même dossier de données.
+Les actions, relances, documents, mails, doublons et flèches de déplacement restent disponibles.
+Les boutons GIMA et réservation de véhicule ouvrent le navigateur habituel.
+Aucun chantier ni document n’est envoyé à GitHub ou à un serveur.
+
+Pour transférer l’application vers un autre PC, copie son dossier complet ET le dossier
+de données choisi. Si l’emplacement des données change, application fermée,
+retire seulement « suivis-chantier-dossier.json » du dossier de l’exécutable :
+le prochain lancement demandera le dossier à utiliser. Choisis le dossier de données transféré.
+
+Si un disque ou dossier configuré est absent, l’application affiche une erreur.
+Elle ne le remplace pas silencieusement par un espace vide.
+En cas d’erreur de fichier, les données sont conservées ; une copie de secours valide
+est récupérée automatiquement si possible. Garde aussi une copie du dossier sur ton
+emplacement professionnel de sauvegarde habituel.
+
+Version Windows 64 bits. Le PC peut appliquer ses règles habituelles d’exécution
+des programmes. Cette version ne demande pas les droits administrateur.

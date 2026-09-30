@@ -6,6 +6,18 @@ PWA personnelle et indépendante, sans dépendance de production. Interface en f
 
 Node.js 22 ou ultérieur : `npm run dev`, puis http://localhost:4178. `npm test` vérifie le déroulé métier.
 
+## Version Windows portable
+
+La version Windows 64 bits est distribuée dans une archive ZIP, avec son moteur Electron intégré. Décompresser **tout** le ZIP et ouvrir `Suivis chantier.exe` : aucune installation et aucun Node.js requis sur le poste utilisateur. Au premier lancement, une boîte Windows demande le dossier des données. Le choix est mémorisé dans `suivis-chantier-dossier.json`, à côté de l’exécutable ; garder l’ensemble du dossier portable dans un emplacement accessible en écriture.
+
+Les modifications validées et les coches du Post-it sont écrites directement dans `suivis-chantier.json` du dossier choisi, pièces jointes incluses. Une écriture utilise un fichier temporaire synchronisé sur disque puis un renommage ; `suivis-chantier.precedent.json` conserve l’état précédent. Les erreurs d’écriture sont affichées et ne remplacent pas l’état en mémoire par une modification non enregistrée. Un fichier corrompu est conservé à part avant récupération depuis une copie précédente valide. Un dossier configuré absent produit une erreur, sans créer silencieusement un espace vide. Un verrou de dossier empêche deux copies indépendantes de modifier simultanément les fichiers.
+
+Dans **Sauvegarde & données → Importer ma sauvegarde JSON**, sélectionner un export de la PWA et confirmer son remplacement des données présentes. Le JSON est validé avant toute écriture. Les chantiers, étapes, notes, historique et fichiers sont ensuite enregistrés automatiquement dans le dossier. Le dernier chantier consulté est également mémorisé sur disque et rouvert au lancement. L’export supplémentaire reste disponible.
+
+Le Post-it est une fenêtre native au premier plan et peut rester ouvert après fermeture de la fenêtre principale. Il utilise le même stockage ; toutes les fonctions métier et les liens GIMA/véhicule sont conservés. Les fenêtres ne disposent pas d’accès Node.js direct : un pont limité transmet les commandes de stockage au processus principal. Les ressources sont locales, avec isolation et sandbox ; les liens externes autorisés s’ouvrent dans le navigateur habituel. Aucune donnée de chantier n’est envoyée sur Internet.
+
+Construction : `npm ci`, installer le moteur officiel avec `node node_modules/electron/install.js` si nécessaire, puis `npm run build:portable`. Le dossier produit est indiqué dans `portable-builds/latest-build.json`. `desktop/build.js` reprend l’interface existante et remplace les adaptateurs IndexedDB par les adaptateurs disque, sans changer la PWA publiée. Les répertoires de distribution, configuration et données de test ne sont pas versionnés.
+
 ## Utilisation
 
 Créer un chantier depuis « À faire » ou « Mes chantiers ». Le déroulé du marché à BDC est prérempli. Un site occupé ajoute la vérification des disponibilités avant le rendez-vous. Confirmer un RDV nécessite une date. La réservation du véhicule reste indépendante de la réception du devis et ne disparaît pas quand le chantier avance.
