@@ -1,6 +1,7 @@
 import {today,requiresAppointmentDate,actionLink} from './model.js';
 import {openStore,all,updateProject} from './store.js';
 import {postitGroups,finishPostitAction,undoPostitAction} from './postit-model.js';
+import {backupStatus} from './backup.js';
 
 const escape=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const displayDate=d=>d?new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';
@@ -33,6 +34,7 @@ export async function mountPostit(doc,{pinned=false,onOpen}={}) {
   const list=doc.querySelector('#postit-list');
   const feedback=doc.querySelector('#postit-feedback');
   function message(text,error=false){feedback.innerHTML=`<p class="${error?'error':'saved'}">${escape(text)}</p>${undo?'<button id="undo">Annuler la dernière coche</button>':''}`;}
+  function savedMessage(text){const s=backupStatus();const attention=s.warning||(['permission','recovery','error'].includes(s.file)?'Copie dans le fichier à reprendre depuis l’application.':'');message(text+(attention?' — '+attention:''),Boolean(attention));}
   async function refresh(force=false){
     if(disposed)return;
     const requestNumber=++refreshNumber;
@@ -65,7 +67,7 @@ export async function mountPostit(doc,{pinned=false,onOpen}={}) {
         result=finishPostitAction(p,tid,appointment);
       });
       undo={pid,tid,before:result.before};dateEntry=null;channel?.postMessage({type:'changed'});
-      message(`Terminé : ${result.title}`);
+      savedMessage(`Terminé : ${result.title}`);
     }catch(error){message(error.message||'Impossible d’enregistrer cette action.',true);}
     finally{pending=false;await refresh(true).catch(()=>{});disable(false);}
   }
@@ -87,7 +89,7 @@ export async function mountPostit(doc,{pinned=false,onOpen}={}) {
     if(button.id==='cancel-date'){dateEntry=null;await refresh(true);}
     if(button.id==='undo'&&undo){
       pending=true;disable(true);
-      try{await updateProject(db,undo.pid,p=>undoPostitAction(p,undo.tid,undo.before));undo=null;channel?.postMessage({type:'changed'});message('Coche annulée. L’action a retrouvé son état précédent.');}
+      try{await updateProject(db,undo.pid,p=>undoPostitAction(p,undo.tid,undo.before));undo=null;channel?.postMessage({type:'changed'});savedMessage('Coche annulée. L’action a retrouvé son état précédent.');}
       catch(error){message(error.message||'Impossible d’annuler cette action.',true);}
       finally{pending=false;await refresh(true);disable(false);}
     }
